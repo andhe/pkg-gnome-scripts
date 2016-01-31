@@ -1,0 +1,3 @@
+#!/bin/sh
+
+echo "deb http://ftp.debian.org/debian/ unstable main" >> /etc/apt/sources.list

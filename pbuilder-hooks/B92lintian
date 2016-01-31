@@ -1,0 +1,8 @@
+#!/bin/bash
+# example file to be used with --hookdir
+#
+# run lintian on generated deb files
+if [ "$ENABLE_LINTIAN" != "0" ]; then
+apt-get install -y -q --force-yes lintian
+lintian -i --allow-root --color always /tmp/buildd/*.changes || true
+fi

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+DISTRIBUTION=$(dpkg-parsechangelog | grep ^Distribution | cut -f2 -d' ')
+
+# check if we need to download the *.orig.tar.*
+PKG=$(dpkg-parsechangelog | grep ^Source: | cut -d' ' -f2)
+VER=$(dpkg-parsechangelog | grep ^Version: | cut -d' ' -f2 | cut -d- -f1)
+NOEPOCHVER=$(echo $VER | sed -e 's/.*://')
+if [ ! -f ../tarballs/${PKG}_${NOEPOCHVER}.orig.tar.* ]; then
+	echo "INFO: could not find ../tarballs/${PKG}_${NOEPOCHVER}.orig.tar.*, trying to fetch..."
+	export DEB_TARBALL_DOWNLOAD_DIR="../tarballs/"
+	fakeroot debian/rules get-orig-source
+fi
+
+if [ "$DISTRIBUTION" = "UNRELEASED" ]; then
+  svn info | grep -c -E "^URL.*/experimental/" && DISTRIBUTION=experimental
+fi
+
+if [ "$DISTRIBUTION" = "experimental" ]; then
+    echo "INFO: Enabling experimental archive access for pbuilder"
+    export ENABLE_EXP=1
+fi
+
+if [ -n "$ENABLE_LOCAL" ]; then
+    echo "INFO: Enabling local archive access for pbuilder"
+    LOCALRC="--configfile ${HOME}/.pbuilderrc-local-pkg"
+fi
+
+if [ -d "../build-logs" ]; then
+	LOGFILE="../build-logs/$PKG-$VER.log"
+else
+	echo "INFO: ../build-logs doesn't exist, no logging to file."
+	LOGFILE=""
+fi
+
+if [ "$LOGFILE" != "" ]; then
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder cowbuilder -- --hookdir '/path/to/pbuilder-hooks/' --debbuildopts '-i -I -j5'" "$@" | tee $LOGFILE
+else
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder cowbuilder -- --hookdir '/path/to/pbuilder-hooks/' --debbuildopts '-i -I -j5'" "$@"
+fi

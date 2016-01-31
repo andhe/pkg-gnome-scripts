@@ -1,0 +1,7 @@
+#!/bin/sh
+# #343894: script from q-funk.
+
+echo "I: checking for missing files."
+
+cd /tmp/buildd/*/debian/..
+fakeroot debian/rules list-missing || dh_install --list-missing || true

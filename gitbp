@@ -1,0 +1,98 @@
+#!/bin/bash
+
+DEBIANBRANCH="master"
+UPSTREAMBRANCH="upstream"
+CURRENTBRANCH=$(git rev-parse --abbrev-ref HEAD)
+DISTRIBUTION=$(dpkg-parsechangelog | grep ^Distribution | cut -f2 -d' ')
+PRISTINETAR=""
+
+# allow symlinks to this script for convenience to set up environment
+# variables for local archive and experimental archive access.
+if [ "$(basename $0)" = "gitbpl" ]; then
+	export ENABLE_LOCAL="1"
+elif [ "$(basename $0)" = "gitbpel" ]; then
+	export ENABLE_LOCAL="1"
+	export ENABLE_EXP="1"
+elif [ "$(basename $0)" = "gitbpe" ]; then
+	export ENABLE_EXP="1"
+fi
+
+# if current branch contains "experimental", assume it's the debian
+# branch and try to find an upstream branch with the same pattern,
+# just replacing debian with upstream.
+if [ "$CURRENTBRANCH" != "${CURRENTBRANCH/experimental/}" ]; then
+	DEBIANBRANCH=$CURRENTBRANCH
+
+	if [ "$DISTRIBUTION" = "UNRELEASED" ]; then
+		DISTRIBUTION="experimental"
+	fi
+
+	UPSTREAMBRANCH=${DEBIANBRANCH/debian/upstream}
+
+	if [ "$(git show-ref refs/heads/$UPSTREAMBRANCH)" = "" ]; then
+		echo "Error: upstream branch $UPSTREAMBRANCH matching current (Debian?) branch $DEBIANBRANCH could not be found." >&2
+		exit 1
+	fi
+
+# .. next, if branch contains "debian-" (ie. debian-wheezy), try
+# to find a matching upstream branch name.
+elif [ "$CURRENTBRANCH" != "${CURRENTBRANCH/debian-/}" ]; then
+	DEBIANBRANCH=$CURRENTBRANCH
+	UPSTREAMBRANCH=${DEBIANBRANCH/debian/upstream}
+
+	if [ "$(git show-ref refs/heads/$UPSTREAMBRANCH)" = "" ]; then
+		echo "Error: upstream branch $UPSTREAMBRANCH matching current (Debian?) branch $DEBIANBRANCH could not be found." >&2
+		exit 1
+	fi
+
+# .. next, if branch contains "master-" (ie. master-wheezy) assume
+# it's the debian branch and try to find a matching upstream branch.
+elif [ "$CURRENTBRANCH" != "${CURRENTBRANCH/master-/}" ]; then
+	DEBIANBRANCH=$CURRENTBRANCH
+	UPSTREAMBRANCH=${DEBIANBRANCH/master/upstream}
+
+	if [ "$(git show-ref refs/heads/$UPSTREAMBRANCH)" = "" ]; then
+		echo "Error: upstream branch $UPSTREAMBRANCH matching current (Debian?) branch $DEBIANBRANCH could not be found." >&2
+		exit 1
+	fi
+
+fi
+
+if [ "$DISABLE_PRISTINE_TAR" = "" ]; then
+
+# if a pristine-tar branch exists, add git-buildpackage argument to use it.
+if [ "$(git show-ref refs/heads/pristine-tar)" != "" ]; then
+	PRISTINETAR="--git-pristine-tar"
+# otherwise, check if origin has a pristine-tar branch and if we just
+# forgot to create the local branch, create and use it.
+elif [ "$(git show-ref origin/pristine-tar)" != "" ]; then
+	echo "INFO: Creating local pristine-tar tracking origin...."
+	git branch pristine-tar origin/pristine-tar
+	PRISTINETAR="--git-pristine-tar"
+fi
+
+else
+	PRISTINETAR="--git-no-pristine-tar"
+fi
+
+# if upload is targeted at experimental, enable pbuilder to fetch
+# build-dependencies from debian experimental.
+if [ "$DISTRIBUTION" = "experimental" ] || [ "$ENABLE_EXP" != "" ]; then
+	echo "INFO: Enabling experimental repository access for pbuilder"
+	export ENABLE_EXP=1
+fi
+
+# if specified via environment that we should include local package archive
+# (/var/cache/pbuilder/mirror, as specified in pbuilder hooks),
+# print out the info message to make it more visible.....
+if [ "$ENABLE_LOCAL" != "" ]; then
+	echo "INFO: Enabling local repository access for pbuilder"
+	export ENABLE_LOCAL=1
+	LOCALBIND="--bindmount '/var/cache/pbuilder/mirror'"
+fi
+
+# show command used triggering build
+set -x
+
+gbp buildpackage $PRISTINETAR --git-upstream-branch=$UPSTREAMBRANCH --git-debian-branch=$DEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder cowbuilder -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
+

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Add packages in /var/cache/pbuilder/mirror to the apt cache if requested
+# See http://wiki.debian.org/PbuilderTricks, local packages in the build
+
+if [ -n "$ENABLE_LOCAL" ]; then
+    echo "deb file:/var/cache/pbuilder/mirror ./" >> /etc/apt/sources.list
+    echo "APT::Get::AllowUnauthenticated \"1\";" >> /etc/apt/apt.conf.d/10local
+    apt-get -y -q install apt-utils
+    (cd /var/cache/pbuilder/mirror && apt-ftparchive packages . > Packages)
+else
+    echo "\$ENABLE_LOCAL not set, not adding local packages to sources.list"
+fi

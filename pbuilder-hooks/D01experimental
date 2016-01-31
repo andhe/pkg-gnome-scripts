@@ -1,0 +1,11 @@
+#!/bin/sh
+# Add an experimental apt line if the package is being built for experimental
+
+MIRROR="http://httpredir.debian.org/debian/"
+
+if [ -n "$ENABLE_EXP" ]; then
+    echo "deb $MIRROR experimental main" >> /etc/apt/sources.list
+    echo "#deb-src $MIRROR experimental main" >> /etc/apt/sources.list
+else
+    echo "\$ENABLE_EXP not set, not adding experimental to sources.list"
+fi

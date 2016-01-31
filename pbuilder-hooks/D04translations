@@ -1,0 +1,4 @@
+#!/bin/sh
+# Disable downloading of package translations to speed up apt-get update
+
+echo 'Acquire::Languages "none";' > /etc/apt/apt.conf.d/99translations
