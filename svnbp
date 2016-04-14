@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PBUILDERHOOKSDIR="$HOME/.pbuilder-hooks/"
+
 DISTRIBUTION=$(dpkg-parsechangelog | grep ^Distribution | cut -f2 -d' ')
 
 # check if we need to download the *.orig.tar.*
@@ -34,7 +36,7 @@ else
 fi
 
 if [ "$LOGFILE" != "" ]; then
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder cowbuilder -- --hookdir '/path/to/pbuilder-hooks/' --debbuildopts '-i -I -j5'" "$@" | tee $LOGFILE
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" --debbuildopts '-i -I -j1'" "$@" | tee $LOGFILE
 else
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder cowbuilder -- --hookdir '/path/to/pbuilder-hooks/' --debbuildopts '-i -I -j5'" "$@"
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" --debbuildopts '-i -I -j1'" "$@"
 fi
