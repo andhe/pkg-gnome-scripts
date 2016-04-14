@@ -9,3 +9,20 @@ if [ -n "$ENABLE_EXP" ]; then
 else
     echo "\$ENABLE_EXP not set, not adding experimental to sources.list"
 fi
+
+if [ -n "$ENABLE_UNSTABLE" ]; then
+    echo "deb $MIRROR unstable main" >> /etc/apt/sources.list
+else
+    grep -q unstable /etc/apt/sources.list || \
+        echo "\$ENABLE_UNSTABLE not set, not adding unstable to sources.list"
+fi
+
+if [ -n "$ENABLE_INCOMING" ]; then
+    echo "deb http://incoming.debian.org/debian-buildd/ buildd-sid main" >> /etc/apt/sources.list
+else
+    echo "\$ENABLE_INCOMING not set, not adding incoming to sources.list"
+fi
+
+if [ -n "$ENABLE_INCOMING" ] && [ -n "$ENABLE_EXP" ]; then
+    echo "deb http://incoming.debian.org/debian-buildd/ buildd-experimental main" >> /etc/apt/sources.list
+fi

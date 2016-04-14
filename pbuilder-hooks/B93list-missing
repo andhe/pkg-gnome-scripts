@@ -3,5 +3,5 @@
 
 echo "I: checking for missing files."
 
-cd /tmp/buildd/*/debian/..
+cd "$BUILDDIR"/*/debian/..
 fakeroot debian/rules list-missing || dh_install --list-missing || true

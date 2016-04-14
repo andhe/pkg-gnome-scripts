@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
 
-if [ -n "$ENABLE_LOCAL" ] || [ -n "$ENABLE_EXP" ]; then
+if [ -n "$ENABLE_LOCAL" ] || [ -n "$ENABLE_EXP" ] || [ -n "$ENABLE_UNSTABLE" ] || [ -n "$ENABLE_INCOMING" ]; then
     apt-get update
 fi
