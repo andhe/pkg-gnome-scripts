@@ -1,5 +1,11 @@
 #!/bin/bash
 
+PKG=$(dpkg-parsechangelog | grep ^Source: | cut -d' ' -f2)
+VER=$(dpkg-parsechangelog | grep ^Version: | cut -d' ' -f2 | cut -d- -f1)
+
+# assume branches are specified in debian/gbp.conf if it exists.
+if [ ! -e debian/gbp.conf ]; then
+
 DEBIANBRANCH="master"
 UPSTREAMBRANCH="upstream"
 CURRENTBRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -58,6 +64,16 @@ elif [ "$CURRENTBRANCH" != "${CURRENTBRANCH/master-/}" ]; then
 
 fi
 
+GITUPSTREAMBRANCH="--git-upstream-branch=$UPSTREAMBRANCH"
+GITDEBIANBRANCH="--git-debian-branch=$DEBIANBRANCH"
+
+else
+
+GITUPSTREAMBRANCH=""
+GITDEBIANBRANCH=""
+
+fi # ! -e debian/gbp.conf
+
 if [ "$DISABLE_PRISTINE_TAR" = "" ]; then
 
 # if a pristine-tar branch exists, add git-buildpackage argument to use it.
@@ -88,11 +104,23 @@ fi
 if [ "$ENABLE_LOCAL" != "" ]; then
 	echo "INFO: Enabling local repository access for pbuilder"
 	export ENABLE_LOCAL=1
-	LOCALBIND="--bindmount '/var/cache/pbuilder/mirror'"
+	LOCALBIND="--bindmounts '/var/cache/pbuilder/mirror'"
+fi
+
+if [ -d "../build-logs" ]; then
+	LOGFILE="../build-logs/$PKG-$VER.log"
+else
+	echo "INFO: ../build-logs doesn't exist, no logging to file."
+	LOGFILE=""
 fi
 
 # show command used triggering build
 set -x
 
-gbp buildpackage $PRISTINETAR --git-upstream-branch=$UPSTREAMBRANCH --git-debian-branch=$DEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder cowbuilder -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
-
+if [ "$LOGFILE" != "" ]; then
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
+#gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
+else
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
+#gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
+fi
