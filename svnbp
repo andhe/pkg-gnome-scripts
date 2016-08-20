@@ -1,8 +1,10 @@
 #!/bin/bash
 
-PBUILDERHOOKSDIR="$HOME/.pbuilder-hooks/"
+PBUILDERHOOKSDIR="$HOME/playground/pkg-gnome-scripts/pbuilder-hooks/"
 
 DISTRIBUTION=$(dpkg-parsechangelog | grep ^Distribution | cut -f2 -d' ')
+
+PBUILDERBINDMOUNTS="" # Will be set later based on ENABLE_LOCAL=1 or not.
 
 # check if we need to download the *.orig.tar.*
 PKG=$(dpkg-parsechangelog | grep ^Source: | cut -d' ' -f2)
@@ -25,7 +27,8 @@ fi
 
 if [ -n "$ENABLE_LOCAL" ]; then
     echo "INFO: Enabling local archive access for pbuilder"
-    LOCALRC="--configfile ${HOME}/.pbuilderrc-local-pkg"
+    #LOCALRC="--configfile ${PBUILDERHOOKSDIR}/.pbuilderrc-local-pkg"
+    PBUILDERBINDMOUNTS="--bindmounts /var/cache/pbuilder/mirror"
 fi
 
 if [ -d "../build-logs" ]; then
@@ -36,7 +39,7 @@ else
 fi
 
 if [ "$LOGFILE" != "" ]; then
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" --debbuildopts '-i -I -j1'" "$@" | tee $LOGFILE
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@" | tee $LOGFILE
 else
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" --debbuildopts '-i -I -j1'" "$@"
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@"
 fi
