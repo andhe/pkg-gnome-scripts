@@ -3,4 +3,6 @@
 #
 # run lintian on generated deb files
 apt-get install -y -q --force-yes lintian
-lintian -i --allow-root --color always "$BUILDDIR"/*.changes || true
+CHANGESFILE="$(find $BUILDDIR -maxdepth 1 -name '*.changes')"
+LINTIANFILE="$CHANGESFILE.lintian"
+lintian -i --allow-root --color always "$CHANGESFILE" | tee "$LINTIANFILE" || true
