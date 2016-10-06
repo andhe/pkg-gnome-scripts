@@ -1,8 +1,11 @@
 #!/bin/bash
-# example file to be used with --hookdir
-#
+
+# Note: if you want to save the lintian report you need to set
+# your ~/.pbuilderrc ADDITIONAL_BUILDRESULTS, eg.
+# ADDITIONAL_BUILDRESULTS=('../*_source.changes' '../*.changes.lintian')
+
 # run lintian on generated deb files
 apt-get install -y -q --force-yes lintian
-CHANGESFILE="$(find $BUILDDIR -maxdepth 1 -name '*.changes')"
+CHANGESFILE="$(find "$BUILDDIR" -maxdepth 1 -name '*.changes')"
 LINTIANFILE="$CHANGESFILE.lintian"
 lintian -i --allow-root --color always "$CHANGESFILE" | tee "$LINTIANFILE" || true

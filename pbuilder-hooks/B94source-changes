@@ -1,0 +1,16 @@
+#!/bin/sh
+# Based on https://www.corsac.net/?rub=blog&post=1579
+
+# Note: you must set in your ~/.pbuilderrc ADDITIONAL_BUILDRESULTS, eg.
+# ADDITIONAL_BUILDRESULTS=('../*_source.changes' '../*.changes.lintian')
+
+set -e
+
+echo "Generating source changes file"
+
+cd ${BUILDDIR}/*/debian/..
+
+srcpackage=$(dpkg-parsechangelog -Ssource)
+srcversion=$(dpkg-parsechangelog -Sversion)
+
+dpkg-genchanges -S > ${BUILDDIR}/${srcpackage}_${srcversion}_source.changes
