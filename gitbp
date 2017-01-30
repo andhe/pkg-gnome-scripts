@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PBUILDERHOOKSDIR="$HOME/playground/pkg-gnome-scripts/pbuilder-hooks"
+
 PKG=$(dpkg-parsechangelog | grep ^Source: | cut -d' ' -f2)
 VER=$(dpkg-parsechangelog | grep ^Version: | cut -d' ' -f2 | cut -d- -f1)
 
@@ -128,7 +130,7 @@ fi
 set -x
 
 if [ "$LOGFILE" != "" ]; then
-gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$PBUILDERHOOKSDIR\" $LOCALBIND" "$@" | tee $LOGFILE
 else
-gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$PBUILDERHOOKSDIR\" $LOCALBIND" "$@"
 fi
