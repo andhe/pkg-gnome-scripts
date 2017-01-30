@@ -1,0 +1,5 @@
+#!/bin/sh
+# Workaround for https://bugs.debian.org/817236
+
+rm -f /dev/ptmx
+mknod -m 666 /dev/ptmx c 5 2
