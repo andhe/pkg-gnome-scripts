@@ -1,6 +1,10 @@
 #!/bin/bash
 
-PBUILDERHOOKSDIR="$HOME/playground/pkg-gnome-scripts/pbuilder-hooks"
+# resolve $0 in case it's a symlink, then grab directory.
+REALDIR="$(dirname $(realpath $0))"
+
+# if unset, assume pbuilder-hooks is in same directory as this script.
+PBUILDERHOOKSDIR="${PBUILDERHOOKSDIR:-$REALDIR/pbuilder-hooks}"
 
 PKG=$(dpkg-parsechangelog | grep ^Source: | cut -d' ' -f2)
 VER=$(dpkg-parsechangelog | grep ^Version: | cut -d' ' -f2 | cut -d- -f1)
