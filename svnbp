@@ -38,8 +38,18 @@ else
 	LOGFILE=""
 fi
 
-if [ "$LOGFILE" != "" ]; then
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@" | tee $LOGFILE
+# check if we need to give pbuilder network access
+if [ -n "$ENABLE_LOCAL" ] || [ -n "$ENABLE_EXP" ] || \
+	[ -n "$ENABLE_UNSTABLE" ] || [ -n "$ENABLE_INCOMING" ] \
+	[ -n "$ENABLE_NETWORK" ]
+then
+	USENETWORK="--use-network yes"
 else
-  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@"
+	USENETWORK=""
+fi
+
+if [ "$LOGFILE" != "" ]; then
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- $USENETWORK --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@" | tee $LOGFILE
+else
+  svn-buildpackage --svn-ignore-new --svn-builder="pdebuild $LOCALRC --pbuilder pbuilder -- $USENETWORK --hookdir \"$PBUILDERHOOKSDIR\" $PBUILDERBINDMOUNTS --debbuildopts '-i -I -j1'" "$@"
 fi

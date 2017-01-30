@@ -114,13 +114,21 @@ else
 	LOGFILE=""
 fi
 
+# check if we need to give pbuilder network access
+if [ -n "$ENABLE_LOCAL" ] || [ -n "$ENABLE_EXP" ] || \
+		[ -n "$ENABLE_UNSTABLE" ] || [ -n "$ENABLE_INCOMING" ] || \
+		[ -n "$ENABLE_NETWORK" ]
+then
+	USENETWORK="--use-network yes"
+else
+	USENETWORK=""
+fi
+
 # show command used triggering build
 set -x
 
 if [ "$LOGFILE" != "" ]; then
-gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
-#gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@" | tee $LOGFILE
 else
-gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
-#gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I' --pbuilder pbuilder $PBUILDEROPTIONS -- --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
+gbp buildpackage $PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH --git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder $PBUILDEROPTIONS -- $USENETWORK --hookdir \"$HOME/.pbuilder-hooks/\" $LOCALBIND" "$@"
 fi
