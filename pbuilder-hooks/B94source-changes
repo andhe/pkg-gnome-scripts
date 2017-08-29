@@ -13,6 +13,6 @@ echo "Generating source changes file"
 cd ${BUILDDIR}/*/debian/..
 
 srcpackage=$(dpkg-parsechangelog -Ssource)
-srcversion=$(dpkg-parsechangelog -Sversion)
+srcversion=$(dpkg-parsechangelog -Sversion | cut -d: -f2-)
 
 dpkg-genchanges -S > ${BUILDDIR}/${srcpackage}_${srcversion}_source.changes
