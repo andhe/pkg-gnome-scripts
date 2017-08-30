@@ -1,0 +1,6 @@
+# source this file from your ~/.bash_aliases
+alias pdebsign="debsign --debs-dir=/var/cache/pbuilder/result/"
+alias svn-bto="svn-buildpackage --svn-tag-only --svn-noautodch"
+#alias pdebuild="pdebuild -- --hookdir ~/playground/pkg-gnome-scripts/pbuilder-hooks/"
+#alias dquilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
+
