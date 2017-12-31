@@ -1,5 +1,5 @@
 # invoke shell after build
 
 apt-get install -y --force-yes vim less bash
-cd "$BUILDDDIR"/*/debian/..
+cd /build/*/debian/..
 /bin/bash < /dev/tty > /dev/tty 2> /dev/tty
