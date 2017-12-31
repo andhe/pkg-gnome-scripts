@@ -83,6 +83,8 @@ fi # ! -e debian/gbp.conf
 if [ "$DISABLE_PRISTINE_TAR" = "" ]; then
 
 # if a pristine-tar branch exists, add git-buildpackage argument to use it.
+# (precondition: only if pristine-tar is not explicitly configured in gbp.conf)
+if [ ! -e debian/gbp.conf ] || ! grep -q pristine-tar debian/gbp.conf ; then
 if [ "$(git show-ref refs/heads/pristine-tar)" != "" ]; then
 	PRISTINETAR="--git-pristine-tar"
 # otherwise, check if origin has a pristine-tar branch and if we just
@@ -91,6 +93,7 @@ elif [ "$(git show-ref origin/pristine-tar)" != "" ]; then
 	echo "INFO: Creating local pristine-tar tracking origin...."
 	git branch pristine-tar origin/pristine-tar
 	PRISTINETAR="--git-pristine-tar"
+fi
 fi
 
 else
