@@ -1,5 +1,11 @@
 # invoke shell after build
 
+if [ -z "$DISABLE_FAILSHELL" ]; then
+
 apt-get install -y --force-yes vim less bash
 cd /build/*/debian/..
 /bin/bash < /dev/tty > /dev/tty 2> /dev/tty
+
+else
+	echo "Not invoking failure shell as DISABLE_FAILSHELL is set."
+fi
