@@ -3,4 +3,4 @@ alias pdebsign="debsign --debs-dir=/var/cache/pbuilder/result/"
 alias svn-bto="svn-buildpackage --svn-tag-only --svn-noautodch"
 #alias pdebuild="pdebuild -- --source-only-changes --hookdir ~/playground/pkg-gnome-scripts/pbuilder-hooks/"
 #alias dquilt="quilt --quiltrc=${HOME}/.quiltrc-dpkg"
-
+alias dc="debcheckout -a --git-track '*'"
