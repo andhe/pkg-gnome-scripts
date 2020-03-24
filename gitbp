@@ -138,11 +138,13 @@ set -x
 
 if [ "$LOGFILE" != "" ]; then
 gbp buildpackage \
+	--git-no-create-orig \
 	$PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH \
 	--git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder -- $PBUILDEROPTIONS $USENETWORK --source-only-changes --hookdir $PBUILDERHOOKSDIR $LOCALBIND" \
 	"$@" | tee $LOGFILE
 else
 gbp buildpackage \
+	--git-no-create-orig \
 	$PRISTINETAR $GITUPSTREAMBRANCH $GITDEBIANBRANCH \
 	--git-builder="pdebuild --debbuildopts '-i -I -j5' --pbuilder pbuilder -- $PBUILDEROPTIONS $USENETWORK --source-only-changes --hookdir $PBUILDERHOOKSDIR $LOCALBIND" \
 	"$@"
