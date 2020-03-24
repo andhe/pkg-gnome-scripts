@@ -5,7 +5,7 @@
 # ADDITIONAL_BUILDRESULTS=('../*_source.changes' '../*.changes.lintian')
 
 # run lintian on generated deb files
-apt-get install -y -q --force-yes lintian
+apt-get install -y -q --force-yes lintian || true
 CHANGESFILE="$(find "$BUILDDIR" -maxdepth 1 -name '*.changes')"
 # We probably have both _amd64.changes and _source.changes,
 # limit to one file/row and try to avoid the sources one.
