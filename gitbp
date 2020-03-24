@@ -113,7 +113,7 @@ fi
 if [ "$ENABLE_LOCAL" != "" ]; then
 	echo "INFO: Enabling local repository access for pbuilder"
 	export ENABLE_LOCAL=1
-	LOCALBIND="--bindmounts '/var/cache/pbuilder/mirror'"
+	LOCALBIND="--bindmounts /var/cache/pbuilder/mirror"
 fi
 
 if [ -d "../build-logs" ]; then
