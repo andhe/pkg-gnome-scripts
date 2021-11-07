@@ -15,7 +15,7 @@ if [ ! -e debian/gbp.conf ]; then
 DEBIANBRANCH="master"
 UPSTREAMBRANCH="upstream"
 CURRENTBRANCH=$(git rev-parse --abbrev-ref HEAD)
-DISTRIBUTION=$(dpkg-parsechangelog | grep ^Distribution | cut -f2 -d' ')
+DISTRIBUTION=$(dpkg-parsechangelog -S Distribution )
 PRISTINETAR=""
 
 # allow symlinks to this script for convenience to set up environment
