@@ -126,6 +126,7 @@ fi
 # check if we need to give pbuilder network access
 if [ -n "$ENABLE_LOCAL" ] || [ -n "$ENABLE_EXP" ] || \
 		[ -n "$ENABLE_UNSTABLE" ] || [ -n "$ENABLE_INCOMING" ] || \
+		[ -n "$ENABLE_TESTING" ] || \
 		[ -n "$ENABLE_NETWORK" ]
 then
 	USENETWORK="--use-network yes"

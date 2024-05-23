@@ -17,6 +17,13 @@ else
         echo "\$ENABLE_UNSTABLE not set, not adding unstable to sources.list"
 fi
 
+if [ -n "$ENABLE_TESTING" ]; then
+	echo "deb $MIRROR testing main" >> /etc/apt/sources.list
+else
+    grep -q testing /etc/apt/sources.list || \
+        echo "\$ENABLE_TESTING not set, not adding testing to sources.list"
+fi
+
 if [ -n "$ENABLE_INCOMING" ]; then
     echo "deb http://incoming.debian.org/debian-buildd/ buildd-sid main" >> /etc/apt/sources.list
 else
